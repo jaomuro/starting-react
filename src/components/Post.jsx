@@ -1,10 +1,24 @@
+/* eslint-disable react/jsx-key */
 /* eslint-disable react/prop-types */
 
 import { Comment } from './Comment';
 import { Avatar } from './Avatar';
+import { format, formatDistanceToNow } from 'date-fns';
+import ptBR from 'date-fns/locale/pt-BR';
+
 import styles from './Post.module.css';
 
-export function Post({ author, publishedAt }) {
+export function Post({ author, publishedAt, content }) {
+  const publishedDateFormatted = format(
+    publishedAt,
+    "29 'de' LLLL 'às' HH:mm'h'",
+    { locale: ptBR }
+  );
+  const publishedDateRelativeToNow = formatDistanceToNow(publishedAt, {
+    locale: ptBR,
+    addSuffix: true,
+  });
+
   return (
     <article className={styles.post}>
       <header>
@@ -15,17 +29,26 @@ export function Post({ author, publishedAt }) {
             <span>{author.role}</span>
           </div>
         </div>
-        <time title="29 de Janeiro às 18:00h" dateTime="2024-01-29 18:00">
-          {publishedAt.toString()}
+        <time
+          title={publishedDateFormatted}
+          dateTime={publishedAt.toISOString()}
+        >
+          {publishedDateRelativeToNow}
         </time>
       </header>
 
       <div className={styles.content}>
-        <p>Fala galera 👋</p>
-        <p>
-          Acabei de subir mais um projeto no meu portifa. É um projeto que fiz
-          no NLW Return, evento da Rocketseat. O nome do projeto é DoctorCare 🚀
-        </p>
+        {content.map((line) => {
+          if (line.type === 'paragraph') {
+            return <p>{line.content}</p>;
+          } else if (line.type === 'link') {
+            return (
+              <p>
+                <a href="#">{line.content}</a>
+              </p>
+            );
+          }
+        })}
         <p>
           👉 <a href="">devonlane.design</a>
         </p>
